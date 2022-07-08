@@ -31,7 +31,8 @@ const initialState: ProductState = {
             select_name: "",
             checkbox_filter_list: [],
             checkbox_filter_status: { status: statusType.idle },
-            checkbox_name: ""
+            checkbox_name: "",
+            input_filter: {}
         }
     },
     brand: {
@@ -624,13 +625,15 @@ const ProductAsyncRequests = {
             const data = await res.data?.data ?? []
             const checkbox = [...data].find(i => i?.type === 'checkbox')
             const select = [...data].find(i => i?.type === 'select')
+            const input = data?.find(i => i?.type === 'input')
 
             const payloadData = {
                 filter_list: data,
                 checkbox_filter_list: checkbox?.childs?.map((i: any) => ({ ...i, selected: false })),
                 checkbox_name: checkbox?.name,
                 select_filter_list: select?.childs,
-                select_name: select?.name
+                select_name: select?.name,
+                input_filter: input
             }
 
             dispatch(categoreFilterSuccess(payloadData))

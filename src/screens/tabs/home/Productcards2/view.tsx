@@ -140,6 +140,57 @@ const Productcards2View = ({ navigation }: any) => {
                         />
                     ) : null
                 }
+
+                {
+                    productState.category.filter.input_filter?.name && (
+                        <>
+                            <Text style={styles.text}>{productState.category.filter.input_filter?.name}</Text>
+                            <TextInput
+                                placeholderTextColor={COLORS.black}
+                                keyboardType="default"
+                                style={styles.input2}
+                                value={productState.category.filter.input_filter?.value}
+                            // onChangeText={(value) => dispatch(changeInput({ key: 'name', value }))}
+                            />
+                        </>
+                    )
+                }
+
+                {
+                    productState.category.filter?.checkbox_filter_list?.length ? (
+                        <>
+                            <Text style={styles.text}>{productState.category.filter.checkbox_name}:</Text>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                {
+                                    productState.category.filter.checkbox_filter_list.map((i: any) => (
+                                        <Checkbox
+                                            key={i?.id}
+                                            checked={i?.selected}
+                                            title={i?.value}
+                                            onPress={() => dispatch(toggleCheckbox(i?.id))}
+                                        />
+                                    ))
+                                }
+                            </ScrollView>
+                        </>
+                    ) : null
+                }
+
+                {
+                    productState.category?.filter?.select_filter_list?.length ? (
+                        <>
+                            <Select
+                                title={productState.category.filter.select_name}
+                                data={productState.category.filter.select_filter_list.map((i: any) => i?.value)}
+                                onSelect={(selectedValue: string) => {
+                                    dispatch(selectFilterSelect(selectedValue))
+                                }}
+                                defaultButtonText={productState.status === 'create' ? `Выбрать ${productState.category.filter.select_name}` : productState.category.filter.selected_select_value}
+                            />
+                        </>
+                    ) : null
+                }
+
             </>
         )
     }
@@ -514,40 +565,6 @@ const Productcards2View = ({ navigation }: any) => {
     function renderCharacteristics() {
         return (
             <View>
-                {
-                    productState.category.filter?.checkbox_filter_list?.length ? (
-                        <>
-                            <Text style={styles.text}>{productState.category.filter.checkbox_name}:</Text>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                {
-                                    productState.category.filter.checkbox_filter_list.map((i: any) => (
-                                        <Checkbox
-                                            key={i?.id}
-                                            checked={i?.selected}
-                                            title={i?.value}
-                                            onPress={() => dispatch(toggleCheckbox(i?.id))}
-                                        />
-                                    ))
-                                }
-                            </ScrollView>
-                        </>
-                    ) : null
-                }
-
-                {
-                    productState.category?.filter?.select_filter_list?.length ? (
-                        <>
-                            <Select
-                                title={productState.category.filter.select_name}
-                                data={productState.category.filter.select_filter_list.map((i: any) => i?.value)}
-                                onSelect={(selectedValue: string) => {
-                                    dispatch(selectFilterSelect(selectedValue))
-                                }}
-                                defaultButtonText={productState.status === 'create' ? `Выбрать ${productState.category.filter.select_name}` : productState.category.filter.selected_select_value}
-                            />
-                        </>
-                    ) : null
-                }
 
             </View>
         )

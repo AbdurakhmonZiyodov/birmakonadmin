@@ -21,6 +21,7 @@ export interface ProductState {
             select_name: string;
             checkbox_filter_list: any[];
             checkbox_name: string;
+            input_filter?: {}
         }
     },
     brand: {
