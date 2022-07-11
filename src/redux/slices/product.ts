@@ -340,6 +340,13 @@ const productSlice = createSlice({
                 ...state.colors,
                 color_list: action.payload
             }
+        }),
+        selectColor: (state, action) => ({
+            ...state,
+            colors: {
+                ...state.colors,
+                _select_color: action.payload
+            }
         })
     }
 })
@@ -382,6 +389,7 @@ const {
     measurementsSuccess,
     selectMeasurementsItem,
     colorSuccess,
+    selectColor
 } = productSlice.actions
 
 const returnImgData = (item: any) => ({
@@ -733,7 +741,8 @@ const ProductAsyncRequests = {
                 measurements: {
                     _selected_item: data?.unit,
                     unit_measurements_list: []
-                }
+                },
+
 
             }
 
@@ -795,7 +804,8 @@ export {
     selectSubChildCategory,
     selectBrand,
     selectFilterSelect,
-    selectMeasurementsItem
+    selectMeasurementsItem,
+    selectColor
 }
 
 export default productSlice.reducer

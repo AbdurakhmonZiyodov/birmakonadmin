@@ -33,7 +33,8 @@ import {
     toggleCheckbox,
     selectFilterSelect,
     clearRequest,
-    selectMeasurementsItem
+    selectMeasurementsItem,
+    selectColor
 } from '../../../../redux/slices/product';
 
 const Productcards2View = ({ navigation }: any) => {
@@ -108,10 +109,10 @@ const Productcards2View = ({ navigation }: any) => {
                 <Select
                     data={productState.colors?.color_list?.map((i) => i?.name)}
                     title={'Выберите цвета'}
-                    defaultButtonText={productState.status === 'create' ? 'Выберите цвета' : productState.measurements?._selected_item?.name}
+                    defaultButtonText={productState.status === 'create' ? 'Выберите цвета' : productState.colors?._select_color?.name}
                     onSelect={(selectedName: any) => {
-                        // const selectedItem = productState.measurements?.unit_measurements_list.find(i => i.name === selectedName)
-                        // dispatch(selectMeasurementsItem(selectedItem))
+                        const selectedColorItem = productState.colors?.color_list?.find(color => color?.name === selectedName)
+                        dispatch(selectColor(selectedColorItem))
                     }}
                 />
             </>
