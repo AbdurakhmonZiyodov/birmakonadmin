@@ -63,6 +63,10 @@ const initialState: ProductState = {
         _selected_item: {},
         unit_measurements_list: []
     },
+    colors: {
+        _select_color: {},
+        color_list: []
+    },
     description: "",
     status: "create", // create or update,
     loading: false,
@@ -329,6 +333,13 @@ const productSlice = createSlice({
                 ...state.measurements,
                 _selected_item: action.payload
             }
+        }),
+        colorSuccess: (state, action) => ({
+            ...state,
+            colors: {
+                ...state.colors,
+                color_list: action.payload
+            }
         })
     }
 })
@@ -369,7 +380,8 @@ const {
     onUpdateSuccess,
     clearProductState,
     measurementsSuccess,
-    selectMeasurementsItem
+    selectMeasurementsItem,
+    colorSuccess,
 } = productSlice.actions
 
 const returnImgData = (item: any) => ({
@@ -744,6 +756,18 @@ const ProductAsyncRequests = {
             const data = await res.data?.data
 
             dispatch(measurementsSuccess(data))
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    onGetColors: () => async (dispatch: AppDispatch) => {
+        try {
+            const res = await services.product.colors()
+            const data = await res.data.data
+            console.log('====================================');
+            console.log("colors success");
+            console.log('====================================');
+            dispatch(colorSuccess(data))
         } catch (error) {
             console.log(error)
         }

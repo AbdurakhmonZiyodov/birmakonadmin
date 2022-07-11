@@ -41,6 +41,10 @@ const Productcards2View = ({ navigation }: any) => {
     const dispatch: any = useAppDispatch()
     const productState = useAppSelector(({ product }) => product)
 
+    console.log('====================================');
+    console.log("productState.colors?.color_list", productState.colors?.color_list);
+    console.log('====================================');
+
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('tabPress', (e) => {
             dispatch(clearRequest())
@@ -53,6 +57,7 @@ const Productcards2View = ({ navigation }: any) => {
         dispatch(ProductAsyncRequests.onGetCategories())
         dispatch(ProductAsyncRequests.onGetBrands())
         dispatch(ProductAsyncRequests.onGetMeasurements())
+        dispatch(ProductAsyncRequests.onGetColors())
 
         return () => {
             dispatch(clearRequest())
@@ -91,6 +96,22 @@ const Productcards2View = ({ navigation }: any) => {
                     onSelect={(selectedName: any) => {
                         const selectedItem = productState.measurements?.unit_measurements_list.find(i => i.name === selectedName)
                         dispatch(selectMeasurementsItem(selectedItem))
+                    }}
+                />
+            </>
+        )
+    }
+
+    function renderColors() {
+        return (
+            <>
+                <Select
+                    data={productState.colors?.color_list?.map((i) => i?.name)}
+                    title={'Выберите цвета'}
+                    defaultButtonText={productState.status === 'create' ? 'Выберите цвета' : productState.measurements?._selected_item?.name}
+                    onSelect={(selectedName: any) => {
+                        // const selectedItem = productState.measurements?.unit_measurements_list.find(i => i.name === selectedName)
+                        // dispatch(selectMeasurementsItem(selectedItem))
                     }}
                 />
             </>
@@ -588,6 +609,9 @@ const Productcards2View = ({ navigation }: any) => {
 
                 {/* Render UnitMeasurements*/}
                 {renderUnitMeasurements()}
+
+                {/* Render Colors */}
+                {renderColors()}
 
                 {/* Render Unit change */}
                 {/* {renderUnitChange()} */}

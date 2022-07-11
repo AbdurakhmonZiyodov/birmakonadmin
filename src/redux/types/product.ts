@@ -55,5 +55,9 @@ export interface ProductState {
     measurements?: {
         _selected_item: {},
         unit_measurements_list: any[]
-    }
+    },
+    colors?: {
+        _select_color?: {},
+        color_list?: any[]
+    },
 }

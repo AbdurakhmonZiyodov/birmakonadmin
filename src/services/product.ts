@@ -27,7 +27,8 @@ const product = {
     deleteProduct: (id: number) => $api.post('/dashboard/product/remove', { id }),
     blockProduct: (id: number) => $api.post('/dashboard/product/lock', { product_id: id }),
     unlockProduct: (id: number) => $api.post('dashboard/product/unlock', { product_id: id }),
-    measurements: () => $api.get('/dashboard/category?type=unit')
+    measurements: () => $api.get('/dashboard/category?type=unit'),
+    colors: () => $api.get('/dashboard/color')
 
 }
 

@@ -15,7 +15,7 @@ import { styles } from './style';
 import { IconButton } from '@react-native-material/core';
 import store from '../../../../redux/store';
 import { baseUrl } from '../../../../api';
-import { useAppDispatch } from '../../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { getShopSeller, getShopSellerUser } from '../../../../redux/slices/shopSeller';
 // import { BackIcon, MessageIcon } from '../../../../assets/icons/icon';
 import { COLORS } from '../../../../constants/color';
@@ -24,13 +24,17 @@ import { MessageIcon } from '../../../../assets/icons/icon';
 const LogoView = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const dispatch: any = useAppDispatch()
+  const backroundImageUri = useAppSelector(s => s?.shopSeller?.data?.photo)
+  const imgUri = useAppSelector(s => s?.shopSeller?.data?.user?.photo)
+
+  console.log(imgUri)
+  console.log(backroundImageUri)
 
   useEffect(() => {
     dispatch(getShopSeller())
     dispatch(getShopSellerUser())
   }, [])
 
-  console.log("uri", store.getState().shopSeller?.data?.user?.photo)
 
   return (
 
@@ -65,16 +69,16 @@ const LogoView = () => {
               paddingVertical: 25
             }}
             source={{
-              uri: baseUrl + store.getState().shopSeller?.data?.photo,
+              uri: baseUrl + backroundImageUri,
 
             }}
           >
             {
-              !!store.getState().shopSeller?.data?.user?.photo && (
+              !!imgUri && (
                 <Image
                   resizeMode='cover'
                   source={{
-                    uri: baseUrl + store.getState().shopSeller?.data?.user?.photo
+                    uri: baseUrl + imgUri
                   }}
                   style={{
                     width: 130,
