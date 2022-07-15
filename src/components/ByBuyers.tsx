@@ -12,9 +12,6 @@ const ByBuyers = () => {
   const dispatch: any = useDispatch()
   const ordersState: any = useAppSelector(state => state.orders)
 
-  console.log('====================================');
-  console.log(JSON.stringify(ordersState.orders_list, null, 4));
-  console.log('====================================');
 
   useEffect(() => {
     dispatch(getAllOrders())

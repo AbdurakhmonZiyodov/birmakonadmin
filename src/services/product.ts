@@ -28,7 +28,9 @@ const product = {
     blockProduct: (id: number) => $api.post('/dashboard/product/lock', { product_id: id }),
     unlockProduct: (id: number) => $api.post('dashboard/product/unlock', { product_id: id }),
     measurements: () => $api.get('/dashboard/category?type=unit'),
-    colors: () => $api.get('/dashboard/color')
+    colors: () => $api.get('/dashboard/color'),
+    currency: () => $api.get('/dashboard/category?type=currency')
+
 
 }
 

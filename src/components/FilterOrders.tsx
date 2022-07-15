@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   ChevronDownIcon,
   OrderIcon,
@@ -10,16 +10,24 @@ import {
   SendingIcon,
   SmsIcon,
 } from '../assets/icons/icon';
-import {COLORS} from '../constants/color';
+import { COLORS } from '../constants/color';
+import useMyOrders from './../hooks/useMyOrders';
 
 const FilterOrders = () => {
   const [isShowed, setIsShowed] = useState(false);
+  const { onGetAllStatus, state } = useMyOrders()
+
+  useEffect(() => {
+    onGetAllStatus()
+  }, [])
+
   const enableShow = () => {
     setIsShowed(true);
   };
   const disableShow = () => {
     setIsShowed(false);
   };
+
   return (
     <TouchableOpacity
       style={styles.box}
@@ -48,7 +56,7 @@ const FilterOrders = () => {
               <View style={styles.view}>
                 <PaymentExpectedIcon />
                 <View style={styles.iconView}>
-                  <Text style={styles.iconText}>1</Text>
+                  <Text style={styles.iconText}>{state.pending?.data?.length ?? 0}</Text>
                 </View>
                 <Text style={styles.text}>Ожидается оплата</Text>
               </View>
@@ -57,13 +65,16 @@ const FilterOrders = () => {
               <View style={styles.view}>
                 <SendingIcon />
                 <View style={styles.iconView}>
-                  <Text style={styles.iconText}>1</Text>
+                  <Text style={styles.iconText}>{state.accepted?.data?.length ?? 0}</Text>
                 </View>
                 <Text style={styles.text}>Ожидается отправка</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity>
               <View style={styles.view}>
+                <View style={styles.iconView}>
+                  <Text style={styles.iconText}>{state.delivery?.data?.length ?? 0}</Text>
+                </View>
                 <OrderIcon />
                 <Text style={styles.text}>Заказ отправлен</Text>
               </View>
@@ -72,7 +83,7 @@ const FilterOrders = () => {
               <View style={styles.view}>
                 <SmsIcon />
                 <View style={styles.iconView}>
-                  <Text style={styles.iconText}>1</Text>
+                  <Text style={styles.iconText}>{state.confirmationPending?.data?.length ?? 0}</Text>
                 </View>
                 <Text style={styles.text}>Ожидается отзыв</Text>
               </View>

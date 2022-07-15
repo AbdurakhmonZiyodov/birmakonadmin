@@ -23,7 +23,7 @@ import SortModal from './components/SortModal';
 import { styles } from './style';
 
 import { Button } from "@react-native-material/core"
-import { Paragraph, Dialog, Portal, Provider } from 'react-native-paper';
+import { Dialog, Provider } from 'react-native-paper';
 
 const ProductCardsView = () => {
   const [searchInput, setSearchInput] = useState('');

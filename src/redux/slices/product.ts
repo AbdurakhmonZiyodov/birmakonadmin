@@ -8,10 +8,14 @@ import { statusType } from '../types/statusType'
 import { Alert, Platform } from 'react-native'
 import { navigatRequest } from '../../routes/RootNavigation'
 import { onGetProducts } from './productCards'
+import uuid from 'react-native-uuid'
 
 const initialState: ProductState = {
     productId: null,
-    name: "",
+    name_ru: "",
+    name_uz: "",
+    name_en: "",
+    amount: "",
     category: {
         categories_list: [],
         subcategories_list: [],
@@ -24,15 +28,6 @@ const initialState: ProductState = {
         subcategories_status: { status: statusType.idle },
         filter: {
             filter_list: [],
-            filter_status: { status: statusType.idle },
-            select_filter_list: [],
-            select_filter_status: { status: statusType.idle },
-            selected_select_value: "",
-            select_name: "",
-            checkbox_filter_list: [],
-            checkbox_filter_status: { status: statusType.idle },
-            checkbox_name: "",
-            input_filter: {}
         }
     },
     brand: {
@@ -67,10 +62,17 @@ const initialState: ProductState = {
         _select_color: {},
         color_list: []
     },
+    currency: {
+        currency_list: [],
+        _select_currency: {}
+    },
     description: "",
     status: "create", // create or update,
     loading: false,
     error: undefined,
+    characteristic: {
+        characteristic_list: [{ key: "", value: "", id: uuid.v4() }]
+    }
 }
 
 const productSlice = createSlice({
@@ -113,20 +115,20 @@ const productSlice = createSlice({
             ...state,
             gallery: state.gallery.filter((_, index) => index !== action.payload)
         }),
-        toggleCheckbox: (state, action: PayloadAction<number>) => ({
+        toggleCheckbox: (state, action) => ({
             ...state,
             category: {
                 ...state.category,
                 filter: {
-                    ...state.category.filter,
-                    checkbox_filter_list: [
-                        ...state.category.filter.checkbox_filter_list
-                    ]
-                        .map(i => i?.id !== action.payload ? i : { ...i, selected: !i.selected })
+                    filter_list: [
+                        ...state.category.filter.filter_list
+                    ].map(fc => fc.type === 'checkbox' ? {
+                        ...fc,
+                        childs: [...fc.childs].map(i => i.id === action.payload ? { ...i, selected: !i.selected } : { ...i })
+                    } : { ...fc })
                 }
             }
-        }
-        ),
+        }),
         categoriesRequest: (state) => ({
             ...state,
             category: {
@@ -181,40 +183,12 @@ const productSlice = createSlice({
                 }
             }
         }),
-        categoreFilterRequest: (state) => ({
-            ...state,
-            category: {
-                ...state.category,
-                filter: {
-                    ...state.category.filter,
-                    filter_status: {
-                        status: statusType.pending, error: undefined
-                    }
-                }
-            }
-        }),
         categoreFilterSuccess: (state, action) => ({
             ...state,
             category: {
                 ...state.category,
                 filter: {
-                    ...state.category.filter,
-                    ...action.payload,
-                    filter_status: {
-                        status: statusType.resolved, error: undefined
-                    }
-                }
-            }
-        }),
-        categoreFilterFailure: (state, action) => ({
-            ...state,
-            category: {
-                ...state.category,
-                filter: {
-                    ...state.category.filter,
-                    filter_status: {
-                        status: statusType.rejected, error: action.payload
-                    }
+                    filter_list: action.payload,
                 }
             }
         }),
@@ -287,13 +261,28 @@ const productSlice = createSlice({
                 last_selected_id: action.payload.last_selected_id
             }
         }),
-        selectFilterSelect: (state, action: PayloadAction<string>) => ({
+        selectFilterSelect: (state, action: PayloadAction<{ select_id: number; index: number; }>) => ({
             ...state,
             category: {
                 ...state.category,
                 filter: {
-                    ...state.category.filter,
-                    selected_select_value: action.payload
+                    filter_list: [...state.category.filter.filter_list]
+                        .map(fc => fc.type === 'select' ? {
+                            ...fc,
+                            selected_item: action.payload.select_id === fc.id ? {
+                                ...fc.childs[action.payload.index]
+                            } : { ...fc.selected_item }
+                        } : { ...fc })
+                }
+            }
+        }),
+        changeFilterInput: (state, action: PayloadAction<{ value: string; id: number; }>) => ({
+            ...state,
+            category: {
+                ...state.category,
+                filter: {
+                    filter_list: [...state.category.filter.filter_list]
+                        .map(fc => fc.type === 'input' && fc.id === action.payload.id ? { ...fc, value: action.payload.value } : { ...fc })
                 }
             }
         }),
@@ -347,6 +336,46 @@ const productSlice = createSlice({
                 ...state.colors,
                 _select_color: action.payload
             }
+        }),
+        currencySuccess: (state: any, action) => ({
+            ...state,
+            currency: {
+                ...state.currency,
+                currency_list: action.payload
+            }
+        }),
+        selectCurrency: (state, action) => ({
+            ...state,
+            currency: {
+                ...state.currency,
+                _select_currency: action.payload
+            }
+        }),
+        addCharacteristic: (state) => ({
+            ...state,
+            characteristic: {
+                characteristic_list: [...state.characteristic.characteristic_list,
+                { key: "", value: "", id: uuid.v4() }
+                ]
+            }
+        }),
+        deleteCharacteristic: (state, action) => {
+            if (state.characteristic.characteristic_list.length <= 1) return state
+
+            return {
+                ...state,
+                characteristic: {
+                    characteristic_list: [...state.characteristic.characteristic_list].filter(ci => ci.id !== action.payload)
+                }
+            }
+        },
+        changeCharacteristic: (state, action: PayloadAction<{ id: string; value: string; key: string; }>) => ({
+            ...state,
+            characteristic: {
+                characteristic_list: [
+                    ...state.characteristic.characteristic_list
+                ].map(ci => ci.id === action.payload.id ? { ...ci, [action.payload.key]: action.payload.value } : { ...ci })
+            }
         })
     }
 })
@@ -367,9 +396,7 @@ const {
     subcategoriesRequest,
     subcategoriesSuccess,
     subcategoriesFailure,
-    categoreFilterRequest,
     categoreFilterSuccess,
-    categoreFilterFailure,
     onSaveRequest,
     onSaveSuccess,
     onSaveFailure,
@@ -389,7 +416,13 @@ const {
     measurementsSuccess,
     selectMeasurementsItem,
     colorSuccess,
-    selectColor
+    selectColor,
+    currencySuccess,
+    selectCurrency,
+    changeFilterInput,
+    addCharacteristic,
+    deleteCharacteristic,
+    changeCharacteristic
 } = productSlice.actions
 
 const returnImgData = (item: any) => ({
@@ -400,15 +433,19 @@ const returnImgData = (item: any) => ({
 
 const ProductAsyncRequests = {
     onSave: () => async (dispatch: AppDispatch | any, getState: getStateType) => {
-        console.log('====================================');
-        console.log("onSave pressed");
-        console.log('====================================');
+
+        // requiere
+        if (!getState().product.category.last_selected_id) return Alert.alert('Выберите категорию')
+        if (!getState().product.name_en || !getState().product.name_ru || !getState().product.name_uz) return Alert.alert("введите Наименование")
+        if (!getState().product.price) return Alert.alert("введите цена")
+        if (!getState().product.description) return Alert.alert("введите описание")
+        if (!getState().product.colors?._select_color?.id) return Alert.alert("введите color")
 
         // data create
         const data: any = {
-            name_ru: getState().product.name,
-            name_uz: getState().product.name,
-            name_en: getState().product.name,
+            name_ru: getState().product.name_ru,
+            name_uz: getState().product.name_uz,
+            name_en: getState().product.name_en,
             description_ru: getState().product.description,
             description_uz: getState().product.description,
             description_en: getState().product.description,
@@ -431,13 +468,14 @@ const ProductAsyncRequests = {
             count_price2: getState().product.count_price2,
             brand_id: getState().product.brand.selected_brand?.id,
             category_id: getState().product.category.last_selected_id,
-            gallery: { ...getState().product.photo, uri: getState().product.photo?.uri?.split(baseUrl).join("") },
             stock_id: 2,
             weight: getState().product.weight,
             height: getState().product.height,
             width: getState().product.width,
             length: getState().product.length,
             unit_id: getState().product.measurements?._selected_item?.id,
+            amount: getState().product.amount,
+            currency_id: getState().product.currency?._select_currency?.id,
         }
 
         // create form data
@@ -464,39 +502,48 @@ const ProductAsyncRequests = {
             const itemKeyLength = Object.keys(galerys[index]).length
             if (itemKeyLength === 3) {
                 const item = { ...galerys[index], uri: galerys[index]?.uri?.split(baseUrl).join('') }
+                if (index === 0) {
+                    formData.append("photo", item)
+                }
                 formData.append(`gallery[${index}]`, item)
             }
         }
 
-        // category filter checkbox and select
-        const checkboxId = getState().product.category.filter.filter_list.find((i: any) => i.type === 'checkbox')?.id
-        const selectId = getState().product.category.filter.filter_list.find((i: any) => i.type === 'select')?.id
 
-        if (checkboxId) {
-            for (let item of getState().product.category.filter.checkbox_filter_list) {
-                if (item.selected) {
-                    formData.append(`filter[${checkboxId}]`, item.id)
+        getState().product.category.filter.filter_list.filter(fc => fc.type === 'checkbox').forEach(i => {
+            i.childs.forEach((ii: any) => {
+                if (ii.checked) {
+                    formData.append(`filter[${i.id}]`, ii.id)
                 }
+            })
+        })
+
+        getState().product.category.filter.filter_list.filter(fc => fc.type === 'select').forEach(i => {
+            if (i.selected_item?.id) {
+                formData.append(`filter[${i?.id}]`, i.selected_item.id)
             }
+        })
+
+        getState().product.category.filter.filter_list.filter(fc => fc.type === 'input').forEach(i => {
+            if (i.value) {
+                formData.append(`filter[${i?.id}]`, i.value)
+            }
+        })
+
+        const color_id = getState().product.colors?._select_color?.id
+
+        if (color_id) {
+            formData.append(`colors[0]`, color_id)
         }
 
-        // select item append formData data
-        if (selectId) {
-            if (getState()?.product?.category?.filter?.select_filter_list?.length) {
-                const itemId = getState().product.category.filter.select_filter_list.find(s => s.value === getState().product.category.filter.selected_select_value)?.id
-                if (itemId) {
-                    formData.append(`filter[${selectId}]`, itemId)
-                }
+        getState().product.characteristic.characteristic_list.forEach((i, index) => {
+            if (i.key && i.value) {
+                formData.append(`properties_data[key_name][${index}]`, i.key)
+                formData.append(`properties_data[value_name][${index}]`, i.value)
             }
-        }
+        })
 
-        formData.append("colors[0]", 5)
 
-        // requiere
-        if (!getState().product.category.last_selected_id) return Alert.alert('Выберите категорию')
-        if (!getState().product.name) return Alert.alert("введите Наименование")
-        if (!getState().product.price) return Alert.alert("введите цена")
-        if (!getState().product.description) return Alert.alert("введите описание")
 
         dispatch(onSaveRequest())
         console.log('====================================');
@@ -634,37 +681,19 @@ const ProductAsyncRequests = {
         const id = getState().product.category.last_selected_id
         if (id === null) return;
 
-        dispatch(categoreFilterRequest())
-        console.log('====================================');
-        console.log("categoreFilterRequest");
-        console.log('====================================');
-
         try {
 
             const res = await services.product.categoryFilter(id)
-            const data = await res.data?.data ?? []
-            const checkbox = [...data].find(i => i?.type === 'checkbox')
-            const select = [...data].find(i => i?.type === 'select')
-            const input = data?.find(i => i?.type === 'input')
+            let data = await res.data?.data ?? []
 
-            const payloadData = {
-                filter_list: data,
-                checkbox_filter_list: checkbox?.childs?.map((i: any) => ({ ...i, selected: false })),
-                checkbox_name: checkbox?.name,
-                select_filter_list: select?.childs,
-                select_name: select?.name,
-                input_filter: input
-            }
+            data = [...data].map(fc => fc.type === 'checkbox' ? {
+                ...fc,
+                childs: [...fc.childs].map(i => ({ ...i, selected: false }))
+            } : fc)
 
-            dispatch(categoreFilterSuccess(payloadData))
-            console.log('====================================');
-            console.log("categoreFilterSuccess");
-            console.log('====================================');
+            dispatch(categoreFilterSuccess(data))
         } catch (error) {
-            dispatch(categoreFilterFailure(error))
-            console.log('====================================');
-            console.log("categoreFilterFailure");
-            console.log('====================================');
+            console.log(error)
         }
     },
     onGetBrands: () => async (dispatch: AppDispatch) => {
@@ -691,8 +720,9 @@ const ProductAsyncRequests = {
     toggleSwitch: (keyName: string) => async (dispatch: AppDispatch) => {
         dispatch(toggleSwitch(keyName))
     },
-    onUpdateProduct: (id: number) => async (dispatch: AppDispatch, getState: getStateType) => {
+    onUpdateProduct: (id: number) => async (dispatch: any, getState: getStateType) => {
         if (id === null || id === undefined || id < 0) return;
+        dispatch(getAllCategory())
         dispatch(onUpdateRequest(id))
         console.log('====================================');
         console.log("onUpdateRequest");
@@ -704,7 +734,9 @@ const ProductAsyncRequests = {
             const data = await res.data?.data
 
             const payloadData = {
-                name: data?.name ?? "",
+                name_ru: data?.name ?? "",
+                name_uz: data?.name ?? "",
+                name_en: data?.name ?? "",
                 price: String(data?.price ?? ""),
                 price_old: String(data?.price_old ?? ""),
                 price_opt: String(data?.price_opt ?? ""),
@@ -734,15 +766,22 @@ const ProductAsyncRequests = {
                 category: {
                     ...getState().product.category,
                     last_selected_id: data?.category?.id,
-                    selected_category: data?.category_full_array[0],
-                    selected_subcategory: data?.category_full_array[1],
+                    selected_category: data?.category_full_array[1],
+                    selected_subcategory: data?.category_full_array[0],
                     selected_subcategories_childs: data?.category_full_array[2]
                 },
                 measurements: {
+                    ...getState().product.measurements,
                     _selected_item: data?.unit,
-                    unit_measurements_list: []
                 },
-
+                currency: {
+                    ...getState().product.currency,
+                    _select_currency: data?.currency
+                },
+                characteristic: {
+                    // characteristic_list: [{ key: "", value: "", id: uuid.v4() }]
+                    characteristic_list: data?.productProperties.map(item => ({ key: item.key_name, value: item.value_name, id: uuid.v4() }))
+                }
 
             }
 
@@ -780,6 +819,15 @@ const ProductAsyncRequests = {
         } catch (error) {
             console.log(error)
         }
+    },
+    onGetCurrency: () => async (dispatch: AppDispatch) => {
+        try {
+            const res = await services.product.currency()
+            const data = await res.data?.data
+            dispatch(currencySuccess(data))
+        } catch (error) {
+            console.log(error)
+        }
     }
 }
 
@@ -790,6 +838,17 @@ const clearRequest = () => async (dispatch: any) => {
     dispatch(ProductAsyncRequests.onGetMeasurements())
 }
 
+const getAllCategory = () => async (dispatch: any) => {
+    try {
+        await dispatch(ProductAsyncRequests.onGetCurrency())
+        await dispatch(ProductAsyncRequests.onGetBrands())
+        await dispatch(ProductAsyncRequests.onGetColors())
+        await dispatch(ProductAsyncRequests.onGetMeasurements())
+        await dispatch(ProductAsyncRequests.onGetCategories())
+    } catch (error) {
+
+    }
+}
 export {
     ProductAsyncRequests,
     incrementCount,
@@ -805,7 +864,13 @@ export {
     selectBrand,
     selectFilterSelect,
     selectMeasurementsItem,
-    selectColor
+    selectColor,
+    selectCurrency,
+    changeFilterInput,
+    addCharacteristic,
+    deleteCharacteristic,
+    changeCharacteristic,
+    getAllCategory
 }
 
 export default productSlice.reducer

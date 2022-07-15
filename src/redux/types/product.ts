@@ -1,5 +1,8 @@
 export interface ProductState {
-    name: string;
+    name_ru: string,
+    name_uz: string,
+    name_en: string,
+    amount: string,
     productId: null | number;
     category: {
         categories_list: any[];
@@ -13,15 +16,6 @@ export interface ProductState {
         subcategories_status: any;
         filter: {
             filter_list: any[];
-            select_filter_list: any[];
-            selected_select_value: string;
-            select_filter_status: any;
-            checkbox_filter_status: any;
-            filter_status: any;
-            select_name: string;
-            checkbox_filter_list: any[];
-            checkbox_name: string;
-            input_filter?: {}
         }
     },
     brand: {
@@ -56,8 +50,15 @@ export interface ProductState {
         _selected_item: {},
         unit_measurements_list: any[]
     },
+    currency?: {
+        currency_list?: any[],
+        _select_currency: {}
+    },
     colors?: {
         _select_color?: {},
         color_list?: any[]
     },
+    characteristic: {
+        characteristic_list: any[]
+    }
 }

@@ -19,6 +19,8 @@ import Select from '../../../../components/common/Select';
 import Loading from '../../../../loading/Loading';
 import { useRoute } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
+import AntIcon from 'react-native-vector-icons/AntDesign'
+import IonIcon from 'react-native-vector-icons/Ionicons'
 import {
     ProductAsyncRequests,
     selectCategory,
@@ -34,17 +36,18 @@ import {
     selectFilterSelect,
     clearRequest,
     selectMeasurementsItem,
-    selectColor
+    selectColor,
+    selectCurrency,
+    changeFilterInput,
+    deleteCharacteristic,
+    addCharacteristic,
+    changeCharacteristic,
+    getAllCategory
 } from '../../../../redux/slices/product';
 
 const Productcards2View = ({ navigation }: any) => {
-    const { params }: any = useRoute()
     const dispatch: any = useAppDispatch()
     const productState = useAppSelector(({ product }) => product)
-
-    console.log('====================================');
-    console.log("productState.colors?.color_list", productState.colors?.color_list);
-    console.log('====================================');
 
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('tabPress', (e) => {
@@ -55,16 +58,12 @@ const Productcards2View = ({ navigation }: any) => {
     }, [navigation]);
 
     React.useEffect(() => {
-        dispatch(ProductAsyncRequests.onGetCategories())
-        dispatch(ProductAsyncRequests.onGetBrands())
-        dispatch(ProductAsyncRequests.onGetMeasurements())
-        dispatch(ProductAsyncRequests.onGetColors())
+        dispatch(getAllCategory())
 
         return () => {
             dispatch(clearRequest())
         }
     }, [])
-
 
 
     if (productState.loading && productState.productId && productState.status === 'create') return <Loading title='товар загружается' />
@@ -75,17 +74,37 @@ const Productcards2View = ({ navigation }: any) => {
     function renderName() {
         return (
             <>
-                <Text style={styles.text}>Наименование</Text>
+                <Text style={styles.text}>Наименованиe(ru)</Text>
                 <TextInput
                     placeholderTextColor={COLORS.black}
                     keyboardType="default"
                     style={styles.input2}
-                    value={productState.name}
-                    onChangeText={(value) => dispatch(changeInput({ key: 'name', value }))}
+                    value={productState.name_ru}
+                    onChangeText={(value) => dispatch(changeInput({ key: 'name_ru', value }))}
+                />
+
+                <Text style={styles.text}>Наименованиe(uz)</Text>
+                <TextInput
+                    placeholderTextColor={COLORS.black}
+                    keyboardType="default"
+                    style={styles.input2}
+                    value={productState.name_uz}
+                    onChangeText={(value) => dispatch(changeInput({ key: 'name_uz', value }))}
+                />
+
+                <Text style={styles.text}>Наименованиe(en)</Text>
+                <TextInput
+                    placeholderTextColor={COLORS.black}
+                    keyboardType="default"
+                    style={styles.input2}
+                    value={productState.name_en}
+                    onChangeText={(value) => dispatch(changeInput({ key: 'name_en', value }))}
                 />
             </>
         )
     }
+
+
 
     function renderUnitMeasurements() {
         return (
@@ -119,16 +138,30 @@ const Productcards2View = ({ navigation }: any) => {
         )
     }
 
-    function renderCategory() {
+    function renderAmount() {
         return (
             <>
+                <Text style={styles.text}>Количество на складе</Text>
+                <TextInput
+                    placeholderTextColor={COLORS.black}
+                    keyboardType="numeric"
+                    style={styles.input2}
+                    value={productState.amount}
+                    onChangeText={(value) => dispatch(changeInput({ key: 'amount', value }))}
+                />
+            </>
+        )
+    }
+
+    function renderCategory() {
+        return (
+            <View style={{ marginBottom: 30 }}>
                 <Select
                     data={productState.category.categories_list.map((i: any) => i?.name)}
                     title={'Категорию'}
                     defaultButtonText={productState.status === 'create' ? 'Выбрать категорию' : productState.category?.selected_category?.name}
                     onSelect={(selectedName: any) => {
                         const selectedItem: any = productState.category.categories_list.find((i: any) => i?.name === selectedName)
-                        // dispatch(ProductAsyncRequests.onGetCategories())
                         dispatch(selectCategory({ selected_category: selectedItem, last_selected_id: selectedItem?.id }))
                         dispatch(ProductAsyncRequests.onGetSubCategories(selectedItem?.id))
                     }}
@@ -163,57 +196,60 @@ const Productcards2View = ({ navigation }: any) => {
                     ) : null
                 }
 
-                {
-                    productState.category.filter.input_filter?.name && (
-                        <>
-                            <Text style={styles.text}>{productState.category.filter.input_filter?.name}</Text>
-                            <TextInput
-                                placeholderTextColor={COLORS.black}
-                                keyboardType="default"
-                                style={styles.input2}
-                                value={productState.category.filter.input_filter?.value}
-                            // onChangeText={(value) => dispatch(changeInput({ key: 'name', value }))}
-                            />
-                        </>
-                    )
-                }
 
-                {
-                    productState.category.filter?.checkbox_filter_list?.length ? (
-                        <>
-                            <Text style={styles.text}>{productState.category.filter.checkbox_name}:</Text>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                {
-                                    productState.category.filter.checkbox_filter_list.map((i: any) => (
-                                        <Checkbox
-                                            key={i?.id}
-                                            checked={i?.selected}
-                                            title={i?.value}
-                                            onPress={() => dispatch(toggleCheckbox(i?.id))}
-                                        />
-                                    ))
-                                }
-                            </ScrollView>
-                        </>
-                    ) : null
-                }
-
-                {
-                    productState.category?.filter?.select_filter_list?.length ? (
-                        <>
+                <>
+                    {
+                        productState.category.filter.filter_list.filter(fc => fc.type === 'select').map(c => (
                             <Select
-                                title={productState.category.filter.select_name}
-                                data={productState.category.filter.select_filter_list.map((i: any) => i?.value)}
+                                key={c.id}
+                                title={c?.name}
+                                data={c?.childs.map(i => i.value)}
                                 onSelect={(selectedValue: string) => {
-                                    dispatch(selectFilterSelect(selectedValue))
+                                    const vIndex = [...c?.childs].findIndex(i => i.value === selectedValue)
+                                    dispatch(selectFilterSelect({ index: vIndex, select_id: c.id }))
                                 }}
-                                defaultButtonText={productState.status === 'create' ? `Выбрать ${productState.category.filter.select_name}` : productState.category.filter.selected_select_value}
+                                defaultButtonText={productState.status === 'create' ? `Выбрать ${c?.name}` : productState.category.filter.selected_select_value}
                             />
-                        </>
-                    ) : null
-                }
+                        ))
+                    }
 
-            </>
+                    {
+                        productState.category.filter.filter_list.filter(fc => fc.type === 'checkbox').map(c => (
+                            <View key={c.id}>
+                                <Text style={styles.text}>{c.name}</Text>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    {
+                                        c.childs.map((i: any) => (
+                                            <Checkbox
+                                                key={i?.id}
+                                                checked={i?.selected}
+                                                title={i?.value}
+                                                onPress={() => dispatch(toggleCheckbox(i?.id))}
+                                            />
+                                        ))
+                                    }
+                                </ScrollView>
+                            </View>
+                        ))
+                    }
+
+                    {
+                        productState.category.filter.filter_list.filter(fc => fc.type === 'input').map(c => (
+                            <View key={c.id}>
+                                <Text style={styles.text}>{c?.name}</Text>
+                                <TextInput
+                                    placeholderTextColor={COLORS.black}
+                                    keyboardType="default"
+                                    style={styles.input2}
+                                    value={c.value}
+                                    onChangeText={(value) => dispatch(changeFilterInput({ id: c.id, value }))}
+                                />
+                            </View>
+                        ))
+                    }
+                </>
+
+            </View>
         )
     }
 
@@ -285,7 +321,24 @@ const Productcards2View = ({ navigation }: any) => {
                         dispatch(selectBrand(selectedItem))
                     }}
                 />
+
             </>
+        )
+    }
+
+    function renderCurrency() {
+        return (
+            <View style={{ marginBottom: 30 }}>
+                <Select
+                    data={productState.currency?.currency_list?.map((i: any) => i?.name)}
+                    title={'Валюта:'}
+                    defaultButtonText={productState.status === 'create' ? 'Выбрать валюта' : productState.currency?._select_currency?.name}
+                    onSelect={(selectedName: any) => {
+                        const selectedItem: any = productState.currency?.currency_list?.find((i: any) => i?.name === selectedName)
+                        dispatch(selectCurrency(selectedItem))
+                    }}
+                />
+            </View>
         )
     }
 
@@ -297,6 +350,7 @@ const Productcards2View = ({ navigation }: any) => {
                     style={styles.descriptionInput}
                     placeholderTextColor={COLORS.black}
                     value={productState.description}
+                    multiline={true}
                     onChangeText={value => dispatch(changeInput({ key: "description", value }))}
                 />
             </>
@@ -306,41 +360,8 @@ const Productcards2View = ({ navigation }: any) => {
     function renderImagePicker() {
         return (
             <>
-                {/* Photo */}
-                <View style={{ marginTop: 20 }}>
-                    <Text style={styles.text}>Главное фото:</Text>
-                    <View style={{ flexDirection: 'row', marginLeft: 15 }}>
-
-                        {
-                            Object.keys(productState.photo).length ? (
-                                <TouchableOpacity onPress={() => dispatch(deleteMainPicture())}>
-                                    <Image source={{ uri: productState.photo?.uri }} style={styles.imagePicker} />
-                                </TouchableOpacity>
-                            ) : (
-                                <TouchableOpacity
-                                    style={{
-                                        paddingHorizontal: 15,
-                                        paddingVertical: 10,
-                                        width: 80,
-                                        height: 80,
-                                        borderRadius: 10,
-                                        marginRight: 10,
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        borderColor: COLORS.gray,
-                                        borderWidth: 1
-                                    }}
-                                    onPress={() => dispatch(ProductAsyncRequests.onUpdatePhoto())}
-                                >
-                                    <PlusIcon fill={COLORS.gray} />
-                                </TouchableOpacity>
-                            )
-                        }
-                    </View>
-                </View>
-
                 {/* Galery */}
-                {/* <View style={{ marginTop: 15 }}>
+                <View style={{ marginTop: 15 }}>
                     <Text style={styles.text}>Галарея фото товара:</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row', marginLeft: 15 }}>
                         <TouchableOpacity
@@ -375,7 +396,7 @@ const Productcards2View = ({ navigation }: any) => {
                             ))
                         }
                     </ScrollView>
-                </View> */}
+                </View>
 
             </>
         )
@@ -384,10 +405,11 @@ const Productcards2View = ({ navigation }: any) => {
     function renderAR() {
         return (
             <>
-                <Text style={styles.text}>AR Qo'shish</Text>
-                <View style={styles.addAr}>
-                    <Text />
-                </View>
+                <Text style={styles.text}>AR/VR</Text>
+                <TextInput
+                    style={styles.input2}
+                    placeholderTextColor={COLORS.black}
+                />
             </>
         )
     }
@@ -431,7 +453,7 @@ const Productcards2View = ({ navigation }: any) => {
                                 <MinIcon fill={COLORS.white} />
                             </TouchableOpacity>
                             <View style={styles.topBottom}>
-                                <Text style={styles.numberColor}>{productState.count_price ?? 0} шт</Text>
+                                <Text style={styles.numberColor}>{productState.count_price ?? 0} {productState.measurements?._selected_item?.name?.replace('.', '') ?? "шт"}</Text>
                             </View>
                             <TouchableOpacity style={styles.plus} onPress={() => dispatch(decrementCount("count_price"))}>
                                 <PlusIcon fill={COLORS.white} />
@@ -483,13 +505,13 @@ const Productcards2View = ({ navigation }: any) => {
                     </View>
 
                     <View style={{ flexDirection: "row", width: '100%', marginTop: 15, justifyContent: 'space-between' }}>
-                        <Text style={styles.text}>Опт кол-во (шт):</Text>
+                        <Text style={styles.text}>Опт кол-во ({productState.measurements?._selected_item?.name?.replace('.', '') ?? "шт"}):</Text>
                         <View style={styles.counter}>
                             <TouchableOpacity style={styles.minus} onPress={() => dispatch(incrementCount("count_price1"))}>
                                 <MinIcon fill={COLORS.white} />
                             </TouchableOpacity>
                             <View style={styles.topBottom}>
-                                <Text style={styles.numberColor}>{productState.count_price1} шт</Text>
+                                <Text style={styles.numberColor}>{productState.count_price1} {productState.measurements?._selected_item?.name?.replace('.', '') ?? "шт"}</Text>
                             </View>
                             <TouchableOpacity style={styles.plus} onPress={() => dispatch(decrementCount("count_price1"))}>
                                 <PlusIcon fill={COLORS.white} />
@@ -541,13 +563,13 @@ const Productcards2View = ({ navigation }: any) => {
                     </View>
 
                     <View style={{ flexDirection: "row", width: '100%', marginTop: 15, justifyContent: 'space-between' }}>
-                        <Text style={styles.text}>Опт мал кол-во (шт):</Text>
+                        <Text style={styles.text}>Опт мал кол-во ({productState.measurements?._selected_item?.name?.replace('.', '') ?? "шт"}):</Text>
                         <View style={styles.counter}>
                             <TouchableOpacity style={styles.minus} onPress={() => dispatch(incrementCount("count_price2"))}>
                                 <MinIcon fill={COLORS.white} />
                             </TouchableOpacity>
                             <View style={styles.topBottom}>
-                                <Text style={styles.numberColor}>{productState.count_price2} шт</Text>
+                                <Text style={styles.numberColor}>{productState.count_price2} {productState.measurements?._selected_item?.name?.replace('.', '') ?? "шт"}</Text>
                             </View>
                             <TouchableOpacity style={styles.plus} onPress={() => dispatch(decrementCount("count_price2"))}>
                                 <PlusIcon fill={COLORS.white} />
@@ -586,7 +608,47 @@ const Productcards2View = ({ navigation }: any) => {
 
     function renderCharacteristics() {
         return (
-            <View>
+            <View style={{ marginTop: 20 }}>
+                <Text style={{ ...styles.text, fontWeight: "500" }}>Характеристики</Text>
+
+
+                {
+                    productState.characteristic.characteristic_list.map((ci) => (
+                        <View key={ci.id}>
+                            <Text style={styles.text}>Введите ключ</Text>
+                            <TextInput
+                                style={styles.input2}
+                                placeholderTextColor={COLORS.black}
+                                value={ci.key}
+                                onChangeText={value => dispatch(changeCharacteristic({ id: ci.id, key: 'key', value }))}
+                            />
+
+                            <Text style={styles.text}>Введите значение</Text>
+                            <TextInput
+                                style={styles.input2}
+                                placeholderTextColor={COLORS.black}
+                                value={ci.value}
+                                onChangeText={value => dispatch(changeCharacteristic({ id: ci.id, key: 'value', value }))}
+                            />
+
+                            <View
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    paddingRight: 20
+                                }}
+                            >
+                                <TouchableOpacity onPress={() => dispatch(deleteCharacteristic(ci.id))}>
+                                    <AntIcon name="delete" size={25} color={"#000"} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => dispatch(addCharacteristic())}>
+                                    <IonIcon name="add" size={30} color={"#000"} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    ))
+                }
 
             </View>
         )
@@ -599,41 +661,56 @@ const Productcards2View = ({ navigation }: any) => {
             <Header title={productState.status === 'create' ? 'Карточки товаров' : 'Изменить товаров'} />
             <ScrollView>
 
+                {/* 1 */}
                 {/* Render Name */}
                 {renderName()}
 
+                {/* 2 */}
                 {/* Render Brand */}
                 {renderBrand()}
 
-                {/* Render Category */}
-                {renderCategory()}
-
+                {/* 3 */}
                 {/* Render UnitMeasurements*/}
                 {renderUnitMeasurements()}
 
-                {/* Render Colors */}
-                {renderColors()}
+                {/* 4 */}
+                {/* Render Currency */}
+                {renderCurrency()}
 
-                {/* Render Unit change */}
-                {/* {renderUnitChange()} */}
+                {/* 5 */}
+                {/* Render Category */}
+                {renderCategory()}
 
-                {/* Render Dimensions */}
-                {renderDimensions()}
-
+                {/* 6 */}
                 {/* Render money discount count */}
                 {renderMoneys()}
 
+                {/* 7 */}
+                {/* Render Dimensions */}
+                {renderDimensions()}
+
+                {/* 8 */}
+                {/* Render Colors */}
+                {renderColors()}
+
+                {/* 9 */}
+                {/* Render Amount */}
+                {renderAmount()}
 
 
+                {/* 10 */}
                 {/* Render Discription */}
                 {renderDiscription()}
 
+                {/* 11 */}
                 {/* Render Image picker */}
                 {renderImagePicker()}
 
+                {/* 12 */}
                 {/* Render AR */}
                 {renderAR()}
 
+                {/* 13 */}
                 {/* Render Characteristics */}
                 {renderCharacteristics()}
 

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, ActivityIndicator, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, ActivityIndicator, View, ScrollView, FlatList } from 'react-native';
 import React from 'react';
 import { COLORS } from '../constants/color';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
@@ -122,20 +122,27 @@ const ByProducts = () => {
 
   return (
     <View style={styles.ordersBox}>
-      <ScrollView>
-        {
-          (ordersState?.orders_list ?? []).map((i: any) => (
-            <BigItem key={i.id} {...i} />
-          ))
-        }
-      </ScrollView>
+      <FlatList
+        data={ordersState?.orders_list ?? []}
+        renderItem={({ item: i }) => <BigItem key={i.id} {...i} />}
+        ListEmptyComponent={<Text style={styles.text}>заказ не найден</Text>}
+        ListHeaderComponent={<View />}
+        ListFooterComponent={<View />}
+      />
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
         }}>
-        <Text style={styles.allPrice}>Общая сумма: </Text>
-        <Text style={styles.allPriceMoney}>{toFix(String(total ?? 0))} сум</Text>
+        {
+          !!ordersState?.orders_list.length ? (
+            <>
+              <Text style={styles.allPrice}>Общая сумма: </Text>
+              <Text style={styles.allPriceMoney}>{toFix(String(total ?? 0))} сум</Text>
+            </>
+          ) : null
+        }
+
       </View>
     </View>
   );

@@ -323,11 +323,11 @@ export const styles = StyleSheet.create({
   descriptionInput: {
     flex: 1,
     width: '90%',
-    height: 100,
+    minHeight: 100,
     marginLeft: 20,
     borderWidth: 1,
     borderRadius: 5,
-    paddingBottom: 60,
+    // paddingBottom: 60,
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderColor: COLORS.red,

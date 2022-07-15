@@ -7,7 +7,7 @@ const { width, height } = Dimensions.get('window')
 
 interface Iprops {
     title: string;
-    data: string[];
+    data: any[] | undefined;
     onSelect: any;
     defaultButtonText: string;
     titleHide?: true;
