@@ -28,7 +28,7 @@ const useProducts = () => {
         getAll: async () => {
             try {
                 setLoading(true)
-                const res = await services.product.getProducts(currentPage, ids.brand_id, ids.category_id)
+                const res = await services.product.getProducts(ids.category_id)
                 const data: any = await res.data
                 setProduct((s: any) => ([...data?.data]))
                 setPageCount(data?._meta?.pageCount)

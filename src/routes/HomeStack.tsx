@@ -16,8 +16,8 @@ import SupporttView from '../screens/tabs/home/Supportt/view';
 import EditMyProfile from '../screens/tabs/home/EditMyProfile/view';
 import ByBuyers from '../screens/tabs/home/Orders/ByBuyers/view';
 import Avatar from '../components/Avatar';
-import LoginScreen from '../screens/tabs/home/Login/view';
-
+import Chat from '../components/Chat'
+import Chat2 from '../components/Chat2'
 const Stack = createNativeStackNavigator();
 
 const HomeStack = () => {
@@ -39,6 +39,8 @@ const HomeStack = () => {
       <Stack.Screen name="EditMyProfile" component={EditMyProfile} />
       <Stack.Screen name="ByBuyers" component={ByBuyers} />
       <Stack.Screen name="Avatar" component={Avatar} />
+      <Stack.Screen name="Chat" component={Chat} />
+      <Stack.Screen name='Chat2' component={Chat2} />
     </Stack.Navigator>
   );
 };

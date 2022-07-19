@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     SafeAreaView,
     ScrollView,
@@ -8,7 +8,8 @@ import {
     View,
     Switch,
     Image,
-    ActivityIndicator
+    ActivityIndicator,
+    RefreshControl
 } from 'react-native';
 import Header from '../../../../components/Header';
 import { COLORS } from '../../../../constants/color';
@@ -48,6 +49,13 @@ import {
 const Productcards2View = ({ navigation }: any) => {
     const dispatch: any = useAppDispatch()
     const productState = useAppSelector(({ product }) => product)
+    const [refreshing, setRefreshing] = useState<boolean>(false)
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await dispatch(getAllCategory())
+        setRefreshing(false);
+    }
 
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('tabPress', (e) => {
@@ -659,7 +667,17 @@ const Productcards2View = ({ navigation }: any) => {
         <SafeAreaView style={styles.container}>
 
             <Header title={productState.status === 'create' ? 'Карточки товаров' : 'Изменить товаров'} />
-            <ScrollView>
+            <ScrollView
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={"rgba(34, 109, 255, 1)"}
+                        colors={["rgba(34, 109, 255, 1)"]}
+                        progressBackgroundColor={"rgba(255, 255, 255, 1)"}
+                    />
+                }
+            >
 
                 {/* 1 */}
                 {/* Render Name */}

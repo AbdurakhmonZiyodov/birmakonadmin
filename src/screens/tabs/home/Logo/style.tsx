@@ -1,5 +1,5 @@
-import {Platform, StyleSheet} from 'react-native';
-import {COLORS} from '../../../../constants/color';
+import { Platform, StyleSheet } from 'react-native';
+import { COLORS } from '../../../../constants/color';
 
 export const styles = StyleSheet.create({
   container: {
@@ -25,6 +25,8 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     color: COLORS.white,
     fontFamily: 'Montserrat',
+    marginLeft: 7,
+    textAlign: "center"
   },
   sectionBox: {
     marginTop: 20,

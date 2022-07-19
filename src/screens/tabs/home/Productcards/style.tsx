@@ -68,15 +68,17 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 35,
+    paddingLeft: 10,
     paddingVertical: 10,
     marginHorizontal: 2,
     marginRight: 2,
+    // height: 40
   },
   innerText: {
     fontSize: 14,
     fontWeight: '500',
     color: COLORS.white,
+    flex: 1,
   },
   background: {
     height: 180,

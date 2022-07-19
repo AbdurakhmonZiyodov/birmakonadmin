@@ -55,11 +55,14 @@ const SortModal = ({ data, defaultValue, onSelect }: IProps) => {
                         justifyContent: 'space-between'
                     }]}
                 >
-                    <Text style={btnStyle.innerText}>{selectItem}</Text>
+                    <View style={{ flex: 1 }}>
+                        <Text style={btnStyle.innerText}>{selectItem}</Text>
+                    </View>
                     <View style={{
                         transform: [{ rotate: visible ? '180deg' : '0deg' }],
                         alignItems: "center",
-                        justifyContent: "flex-end"
+                        position: 'absolute',
+                        right: 10,
                     }}>
                         <ChevronDownIcon />
                     </View>
@@ -78,9 +81,11 @@ const SortModal = ({ data, defaultValue, onSelect }: IProps) => {
                                     style={styles.selectItem}
                                 >
                                     <Text style={styles.selectItemText}>{value}</Text>
-                                    <Text style={{ color: "#fff" }}>
-                                        {value === selectItem ? <Icon color={"#fff"} name='check' size={20} /> : ""}
-                                    </Text>
+                                    <View style={{ position: 'absolute', right: 5 }}>
+                                        <Text style={{ color: "#fff" }}>
+                                            {value === selectItem ? <Icon color={"#fff"} name='check' size={20} /> : ""}
+                                        </Text>
+                                    </View>
                                 </TouchableOpacity>
                             ))
                         }
@@ -100,10 +105,10 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 5,
         borderBottomLeftRadius: 5,
         position: 'absolute',
-        width: '98.8%',
+        width: '98%',
         top: '100%',
         zIndex: 23
     },
-    selectItem: { paddingVertical: 10, paddingHorizontal: 20, justifyContent: "space-between", flexDirection: "row" },
+    selectItem: { paddingHorizontal: 20, justifyContent: "space-between", flexDirection: "row", height: 40, position: 'relative' },
     selectItemText: { color: "#fff", fontSize: 14 }
 })

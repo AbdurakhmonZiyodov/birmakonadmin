@@ -56,6 +56,12 @@ const ByBuyers = () => {
     )
   }
 
+  if (!dataSort.length) return (
+    <View style={{ marginLeft: 24, marginTop: 100 }}>
+      <Text style={{ color: COLORS.textColor, textAlign: 'center' }}>Покупательям не найден</Text>
+    </View>
+  )
+
   return (
     <>
       {

@@ -15,7 +15,7 @@ import { COLORS } from '../../../../constants/color';
 import useProducts from '../../../../hooks/useProductscards';
 import Loading from '../../../../loading/Loading';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { clearRequest } from '../../../../redux/slices/product';
+import { clearRequest, ProductAsyncRequests } from '../../../../redux/slices/product';
 import { onGetProducts, onPressNextPage, changeVisibleModalProduct, onDeleteProduct } from '../../../../redux/slices/productCards';
 import { statusType } from '../../../../redux/types/statusType';
 import Product from './components/product';
@@ -24,6 +24,9 @@ import { styles } from './style';
 
 import { Button } from "@react-native-material/core"
 import { Dialog, Provider } from 'react-native-paper';
+import { services } from '../../../../services';
+import Select from '../../../../components/common/Select';
+import { FilterModal } from './components/FilterModal';
 
 const ProductCardsView = () => {
   const [searchInput, setSearchInput] = useState('');
@@ -31,16 +34,32 @@ const ProductCardsView = () => {
   const productCardsState = useAppSelector((state) => state.productCards)
   const navigation = useNavigation();
   const [deleteItemNum, setDeleteItemNum] = useState<null | number>(null)
+  const [categoryList, setCategoryList] = useState([])
+  const [value, setValue] = useState("Выбрать Категория")
+  const [visible, setVisible] = useState(false);
 
   const {
-    request,
     category,
     setIds,
     setCategory
   } = useProducts()
 
   useEffect(() => {
-    dispatch(onGetProducts())
+    onGetProducts && dispatch(onGetProducts())
+  }, [])
+
+  useEffect(() => {
+    async function getCategory() {
+      try {
+        const res = await services.product.category()
+        const data = await res.data?.data
+        setCategoryList(data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    getCategory()
   }, [])
 
   if (productCardsState.isOneLoading) return <Loading title='идет погрузка товара.' />
@@ -65,6 +84,13 @@ const ProductCardsView = () => {
     )
   }
 
+
+  function onSelectItem(item: any) {
+    console.log(item)
+    setValue(item.name)
+    setVisible(false)
+    dispatch(onGetProducts(item.id))
+  }
 
 
 
@@ -118,6 +144,8 @@ const ProductCardsView = () => {
         )
       }
 
+      {visible && <FilterModal onSelectItem={onSelectItem} categoryList={categoryList} visible={visible} setVisible={setVisible} />}
+
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.containerSectionView}>
@@ -130,11 +158,6 @@ const ProductCardsView = () => {
           >
             <Text style={styles.containerSectionText}>Добавить товар</Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity style={styles.containerBoxView}>
-            <Text style={styles.containerSectionText}>
-              Добавить тов. таблицей
-            </Text>
-          </TouchableOpacity> */}
         </View>
         <View
           style={{
@@ -157,7 +180,7 @@ const ProductCardsView = () => {
           style={{
             flexDirection: 'row',
             marginHorizontal: 20,
-            alignItems: "center",
+            // alignItems: "center",
             justifyContent: "center",
           }}>
           <View style={{ zIndex: 4, flex: 1 }}>
@@ -170,21 +193,30 @@ const ProductCardsView = () => {
               }]}
             >
               <Text style={styles.innerText}>сортировать</Text>
-
             </TouchableOpacity>
           </View>
 
           <View style={{ zIndex: 3, flex: 1 }}>
-            <SortModal
-              defaultValue='Категория'
-              data={[]}
-              onSelect={(selectedValue: string) => {
-                const selectedItem = category.category_data.find(c => c.name === selectedValue)
-                setIds(ids => ({ ...ids, category_id: selectedItem?.id }))
-                request.getPodcategory(selectedItem?.id)
-                setCategory(s => ({ ...s, podcategory_data: [], child_podcategory_data: [] }))
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setVisible(true)}
+              style={[styles.innerView, {
+                borderBottomRightRadius: 0,
+                borderBottomLeftRadius: 0,
+                justifyContent: 'space-between'
+              }]}
+            >
+              <Text style={styles.innerText}>{value}</Text>
+            </TouchableOpacity>
+
+            {/* <Select
+              data={categoryList.map(({ name }) => name)}
+              title={'Категория'}
+              defaultButtonText={'Выбрать Категория'}
+              onSelect={(selectedName: any) => {
+                console.log(selectedName)
               }}
-            />
+            /> */}
           </View>
         </View>
         <View

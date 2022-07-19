@@ -48,7 +48,7 @@ const LogoView = () => {
         </View>
       </Modal>
       <View style={styles.containerView}>
-        <Text style={styles.containerText}>logo</Text>
+        <Text style={styles.containerText}></Text>
         <Text style={styles.containerText1}>{store.getState().auth.user?.data?.name}</Text>
         <TouchableOpacity onPress={() => setIsModalVisible(true)}>
           <MessageIcon width={30} height={30} fill={COLORS.white} />

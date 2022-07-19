@@ -74,24 +74,26 @@ const ByProducts = () => {
     </View>
   )
 
-  const Item = (item: any) => (
-    <View style={styles.clothesView}>
-      <Text style={styles.kidsClothes}>{item?.product?.name}</Text>
-      <View style={styles.clothesBox}>
-        <View>
-          <Text style={styles.texts}>Количество: 25шт</Text>
-          <Text style={styles.texts}>Статус доставки: {statusPayment(item?.status_payment)}</Text>
-          <Text style={styles.texts}>Статусный логист:{statusLogist(item?.status_logist)}</Text>
-          <Text style={styles.texts}>Статус оплаты: {item?.payment?.name}</Text>
-          <Text style={styles.texts}>Id заказа: {item?.id}</Text>
-        </View>
-        <View>
-          <Text style={styles.price}>{toFix(String(item?.price ?? 0))} сум</Text>
-          <Text style={styles.phoneNumber}>{item?.phone}</Text>
+  const Item = (item: any) => {
+    return (
+      <View style={styles.clothesView}>
+        <Text style={styles.kidsClothes}>{item?.product?.name}</Text>
+        <View style={styles.clothesBox}>
+          <View>
+            <Text style={styles.texts}>Количество: {item?.amount}шт</Text>
+            <Text style={styles.texts}>Статус доставки: {statusPayment(item?.status_payment)}</Text>
+            <Text style={styles.texts}>Статусный логист:{statusLogist(item?.status_logist)}</Text>
+            <Text style={styles.texts}>Статус оплаты: {item?.payment?.name}</Text>
+            <Text style={styles.texts}>Id заказа: {item?.id}</Text>
+          </View>
+          <View>
+            <Text style={styles.price}>{toFix(String(item?.price ?? 0))} сум</Text>
+            <Text style={styles.phoneNumber}>{item?.phone}</Text>
+          </View>
         </View>
       </View>
-    </View>
-  )
+    )
+  }
 
   const BigItem = (item: any) => (
     <View

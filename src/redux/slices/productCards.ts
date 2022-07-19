@@ -91,7 +91,7 @@ const {
     changeVisibleModalProduct
 } = productCards.actions
 
-const onGetProducts = () => async (dispatch: AppDispatch, getState: getStateType) => {
+const onGetProducts = (id?: number) => async (dispatch: AppDispatch, getState: getStateType) => {
     dispatch(productsRequest())
     console.log('====================================');
     console.log("productsRequest");
@@ -99,7 +99,7 @@ const onGetProducts = () => async (dispatch: AppDispatch, getState: getStateType
 
     try {
 
-        const res = await services.product.getProducts()
+        const res = await services.product.getProducts(id)
         const data = await res.data
         const pageCount = data?._meta?.pageCount
 

@@ -467,7 +467,7 @@ const ProductAsyncRequests = {
             count_price1: getState().product.count_price1,
             count_price2: getState().product.count_price2,
             brand_id: getState().product.brand.selected_brand?.id,
-            category_id: getState().product.category.last_selected_id,
+            category_id: getState().product.category.selected_category?.id,
             stock_id: 2,
             weight: getState().product.weight,
             height: getState().product.height,
@@ -505,7 +505,7 @@ const ProductAsyncRequests = {
                 if (index === 0) {
                     formData.append("photo", item)
                 }
-                formData.append(`gallery[${index}]`, item)
+                formData.append(`galleryPhoto[${index}]`, item)
             }
         }
 
@@ -513,20 +513,20 @@ const ProductAsyncRequests = {
         getState().product.category.filter.filter_list.filter(fc => fc.type === 'checkbox').forEach(i => {
             i.childs.forEach((ii: any) => {
                 if (ii.checked) {
-                    formData.append(`filter[${i.id}]`, ii.id)
+                    formData.append(`filters[${i.id}]`, ii.value)
                 }
             })
         })
 
         getState().product.category.filter.filter_list.filter(fc => fc.type === 'select').forEach(i => {
             if (i.selected_item?.id) {
-                formData.append(`filter[${i?.id}]`, i.selected_item.id)
+                formData.append(`filters[${i?.id}]`, i.selected_item.value)
             }
         })
 
         getState().product.category.filter.filter_list.filter(fc => fc.type === 'input').forEach(i => {
             if (i.value) {
-                formData.append(`filter[${i?.id}]`, i.value)
+                formData.append(`filters[${i?.id}]`, i.value)
             }
         })
 
@@ -836,6 +836,8 @@ const clearRequest = () => async (dispatch: any) => {
     dispatch(ProductAsyncRequests.onGetCategories())
     dispatch(ProductAsyncRequests.onGetBrands())
     dispatch(ProductAsyncRequests.onGetMeasurements())
+    dispatch(ProductAsyncRequests.onGetColors())
+    dispatch(ProductAsyncRequests.onGetCurrency())
 }
 
 const getAllCategory = () => async (dispatch: any) => {

@@ -11,11 +11,11 @@ const product = {
     childCategory: (id: number) => $api.get(`/dashboard/category/sub-category?id=${id}`),
     getAllBreands: () => $api.get(`/dashboard/brand`),
     categoryFilter: (id: number) => $api.get(`/dashboard/category/filter?category_id=${id}`),
-    getProducts: () => $api.get('/dashboard/product', {
+    getProducts: (id) => $api.get('/dashboard/product', {
         params: {
             page: store.getState().productCards.currentPage,
             // brand_id:,
-            // category_id
+            category_id: id,
         }
     }),
     getProduct: (id: number) => $api.get(`/dashboard/product/detail?id=${id}`),

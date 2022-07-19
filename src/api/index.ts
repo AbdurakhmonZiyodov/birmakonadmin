@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import store from '../redux/store';
 import { logoutAction } from '../redux/slices/auth';
 
-export const baseUrl = 'https://birmakon.loko.uz';
+export const baseUrl = 'https://birmakon.qwertyuz.ru';
 
 const $api = axios.create({
   baseURL: baseUrl,

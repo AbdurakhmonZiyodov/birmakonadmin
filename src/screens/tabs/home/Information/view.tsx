@@ -95,7 +95,7 @@ const InformationView = ({ closeModal }: any) => {
             <Text style={styles.sectionContainerText}>Инструкции</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => onNavigate("Chat2")}>
           <View style={styles.sectionContainer}>
             <MessagesIcon />
             <Text style={styles.sectionContainerText}>Сообщения</Text>
