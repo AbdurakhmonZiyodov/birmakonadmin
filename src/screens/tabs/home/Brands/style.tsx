@@ -52,6 +52,9 @@ export const styles = StyleSheet.create({
   productsCont: {
     marginTop: 35,
     marginHorizontal: 10,
+    // salom
+    // salom
+    // salom
   },
   rootView: {
     flex: 1
