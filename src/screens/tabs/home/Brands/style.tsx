@@ -1,6 +1,6 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
-import {COLORS} from '../../../../constants/color';
+import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../../constants/color';
 
 export const styles = StyleSheet.create({
   container: {
@@ -53,4 +53,7 @@ export const styles = StyleSheet.create({
     marginTop: 35,
     marginHorizontal: 10,
   },
+  rootView: {
+    flex: 1
+  }
 });
