@@ -1,13 +1,12 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  SafeAreaView,
+  ActivityIndicator, SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  ActivityIndicator
+  View
 } from 'react-native';
 import { SearchIcon } from '../../../../assets/icons/icon';
 import Header from '../../../../components/Header';
@@ -15,18 +14,19 @@ import { COLORS } from '../../../../constants/color';
 import useProducts from '../../../../hooks/useProductscards';
 import Loading from '../../../../loading/Loading';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { clearRequest, ProductAsyncRequests } from '../../../../redux/slices/product';
-import { onGetProducts, onPressNextPage, changeVisibleModalProduct, onDeleteProduct } from '../../../../redux/slices/productCards';
+import { clearRequest } from '../../../../redux/slices/product';
+import { changeVisibleModalProduct, onDeleteProduct, onGetProducts, onPressNextPage } from '../../../../redux/slices/productCards';
 import { statusType } from '../../../../redux/types/statusType';
 import Product from './components/product';
-import SortModal from './components/SortModal';
 import { styles } from './style';
 
-import { Button } from "@react-native-material/core"
+import { Button } from "@react-native-material/core";
 import { Dialog, Provider } from 'react-native-paper';
 import { services } from '../../../../services';
-import Select from '../../../../components/common/Select';
 import { FilterModal } from './components/FilterModal';
+
+import FilterModalOrSort from '../../../../components/FilterModal';
+
 
 const ProductCardsView = () => {
   const [searchInput, setSearchInput] = useState('');
@@ -48,19 +48,17 @@ const ProductCardsView = () => {
     onGetProducts && dispatch(onGetProducts())
   }, [])
 
-  useEffect(() => {
-    async function getCategory() {
-      try {
-        const res = await services.product.category()
-        const data = await res.data?.data
-        setCategoryList(data)
-      } catch (error) {
-        console.log(error)
-      }
+  async function getCategory() {
+    try {
+      const res = await services.product.category()
+      const data = await res.data?.data
+      setCategoryList(data)
+    } catch (error) {
+      console.log(error)
     }
+  }
 
-    getCategory()
-  }, [])
+
 
   if (productCardsState.isOneLoading) return <Loading title='идет погрузка товара.' />
 
@@ -179,44 +177,32 @@ const ProductCardsView = () => {
         <View
           style={{
             flexDirection: 'row',
-            marginHorizontal: 20,
-            // alignItems: "center",
-            justifyContent: "center",
+            paddingHorizontal: 20,
+            paddingTop: 10,
+            justifyContent: "space-between",
+            alignItems: "center"
           }}>
-          <View style={{ zIndex: 4, flex: 1 }}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={[styles.innerView, {
-                borderBottomRightRadius: 0,
-                borderBottomLeftRadius: 0,
-                justifyContent: 'space-between'
-              }]}
-            >
-              <Text style={styles.innerText}>сортировать</Text>
-            </TouchableOpacity>
+          <View
+            style={{
+              flex: 1,
+              marginRight: 5
+            }}
+          >
+            <FilterModalOrSort
+              buttonLabel='Сортировать'
+            />
           </View>
-
-          <View style={{ zIndex: 3, flex: 1 }}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setVisible(true)}
-              style={[styles.innerView, {
-                borderBottomRightRadius: 0,
-                borderBottomLeftRadius: 0,
-                justifyContent: 'space-between'
-              }]}
-            >
-              <Text style={styles.innerText}>{value}</Text>
-            </TouchableOpacity>
-
-            {/* <Select
-              data={categoryList.map(({ name }) => name)}
-              title={'Категория'}
-              defaultButtonText={'Выбрать Категория'}
-              onSelect={(selectedName: any) => {
-                console.log(selectedName)
-              }}
-            /> */}
+          <View
+            style={{
+              flex: 1,
+              marginLeft: 5
+            }}
+          >
+            <FilterModalOrSort
+              buttonLabel='Категория'
+              data={categoryList.map((i: { name: string }) => i.name)}
+              run={getCategory}
+            />
           </View>
         </View>
         <View
