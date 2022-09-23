@@ -1,43 +1,37 @@
-import Icon from 'react-native-vector-icons/Entypo'
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Modal,
+  Image,
+  ImageBackground, Modal,
   SafeAreaView,
   ScrollView,
-  Text,
-  View,
-  Image,
-  ImageBackground,
-  TouchableOpacity
+  Text, TouchableOpacity, View
 } from 'react-native';
-import InformationView from '../Information/view';
-import { styles } from './style';
-import { IconButton } from '@react-native-material/core';
-import store from '../../../../redux/store';
 import { baseUrl } from '../../../../api';
+import { MessageIcon } from '../../../../assets/icons/icon';
+import { COLORS } from '../../../../constants/color';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { getShopSeller, getShopSellerUser } from '../../../../redux/slices/shopSeller';
-// import { BackIcon, MessageIcon } from '../../../../assets/icons/icon';
-import { COLORS } from '../../../../constants/color';
-import { MessageIcon } from '../../../../assets/icons/icon';
+import store from '../../../../redux/store';
+import InformationView from '../Information/view';
+import useLogoHook from './useLogoHook';
+import { styles } from './style';
 
 const LogoView = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const dispatch: any = useAppDispatch()
   const backroundImageUri = useAppSelector(s => s?.shopSeller?.data?.photo)
   const imgUri = useAppSelector(s => s?.shopSeller?.data?.user?.photo)
+  const { shop, getRquestShop } = useLogoHook();
 
-  console.log(imgUri)
-  console.log(backroundImageUri)
 
   useEffect(() => {
     dispatch(getShopSeller())
     dispatch(getShopSellerUser())
+    getRquestShop()
   }, [])
 
 
   return (
-
     <SafeAreaView style={styles.container}>
       <Modal
         animationType="fade"
@@ -69,7 +63,7 @@ const LogoView = () => {
               paddingVertical: 25
             }}
             source={{
-              uri: baseUrl + backroundImageUri,
+              uri: baseUrl + shop.photoBanner,
 
             }}
           >

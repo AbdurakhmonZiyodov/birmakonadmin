@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   ChevronDownIcon,
-  OrderIcon,
-  PaymentExpectedIcon,
-  PenIcon,
+  OrderIcon, PenIcon,
   RightgreyIcon,
   RightIcon,
-  SendingIcon,
-  SmsIcon,
+  SendingIcon
 } from '../assets/icons/icon';
 import { COLORS } from '../constants/color';
 import useMyOrders from './../hooks/useMyOrders';
 
-const FilterOrders = () => {
+interface FilterOrdersProps {
+  activeButton: string;
+  setActiveButton: React.Dispatch<React.SetStateAction<string>>;
+  onClickFilter: (status: any) => void;
+}
+
+const FilterOrders: React.FC<FilterOrdersProps> = ({ activeButton, onClickFilter, setActiveButton }) => {
   const [isShowed, setIsShowed] = useState(false);
   const { onGetAllStatus, state } = useMyOrders()
+
 
   useEffect(() => {
     onGetAllStatus()
@@ -51,44 +55,82 @@ const FilterOrders = () => {
               </View>
             </TouchableOpacity>
           </View>
-          <View style={styles.containerBox}>
-            <TouchableOpacity>
-              <View style={styles.view}>
-                <PaymentExpectedIcon />
-                <View style={styles.iconView}>
-                  <Text style={styles.iconText}>{state.pending?.data?.length ?? 0}</Text>
+          <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          >
+            <View style={styles.containerBox}>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveButton("button");
+                  onClickFilter(0);
+                }}
+              >
+                <View style={styles.view}>
+                  <SendingIcon />
+                  <View style={styles.iconView}>
+                    <Text style={styles.iconText}>{1}</Text>
+                  </View>
+                  <Text style={[styles.text, activeButton === "button" && styles.activeText]}>Новые заказы</Text>
                 </View>
-                <Text style={styles.text}>Ожидается оплата</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={styles.view}>
-                <SendingIcon />
-                <View style={styles.iconView}>
-                  <Text style={styles.iconText}>{state.accepted?.data?.length ?? 0}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveButton("button1");
+                  onClickFilter(1);
+                }}
+              >
+                <View style={styles.view}>
+                  <OrderIcon />
+                  <Text style={[styles.text, activeButton === "button1" && styles.activeText]}>Принятые</Text>
                 </View>
-                <Text style={styles.text}>Ожидается отправка</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={styles.view}>
-                <View style={styles.iconView}>
-                  <Text style={styles.iconText}>{state.delivery?.data?.length ?? 0}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveButton("button2");
+                  onClickFilter(3);
+                }}
+              >
+                <View style={styles.view}>
+                  <OrderIcon />
+                  <Text style={[styles.text, activeButton === "button2" && styles.activeText]}>Ожидает доставки</Text>
                 </View>
-                <OrderIcon />
-                <Text style={styles.text}>Заказ отправлен</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={styles.view}>
-                <SmsIcon />
-                <View style={styles.iconView}>
-                  <Text style={styles.iconText}>{state.confirmationPending?.data?.length ?? 0}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveButton("button3");
+                  onClickFilter(5);
+                }}
+              >
+                <View style={styles.view}>
+                  <OrderIcon />
+                  <Text style={[styles.text, activeButton === "button3" && styles.activeText]}>Доставленые</Text>
                 </View>
-                <Text style={styles.text}>Ожидается отзыв</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveButton("button4");
+                  onClickFilter(2);
+                }}
+              >
+                <View style={styles.view}>
+                  <OrderIcon />
+                  <Text style={[styles.text, activeButton === "button4" && styles.activeText]}>Отмененые</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveButton("button5");
+                  onClickFilter(9);
+                }}
+              >
+                <View style={styles.view}>
+                  <OrderIcon />
+                  <Text style={[styles.text, activeButton === "button5" && styles.activeText]}>Ожидается отзыва</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
           <TouchableOpacity>
             <View style={styles.row}>
               <View style={styles.center}>
@@ -99,8 +141,9 @@ const FilterOrders = () => {
             </View>
           </TouchableOpacity>
         </View>
-      ) : null}
-    </TouchableOpacity>
+      ) : null
+      }
+    </TouchableOpacity >
   );
 };
 
@@ -182,6 +225,9 @@ const styles = StyleSheet.create({
     fontSize: 10,
     height: 30,
     color: COLORS.black,
+  },
+  activeText: {
+    color: COLORS.red
   },
   view: {
     alignItems: 'center',
